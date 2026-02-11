@@ -1,5 +1,16 @@
 package com.masood
 
+import FileMetadata
+import java.io.File
+
 fun main() {
-    println("Hello World!")
+
+
+    var url = "http://localhost:8080/abc.txt"
+    val fileMetadata = FileMetadata();
+
+
+    fileMetadata.getMetaData(url);
+
+
 }
