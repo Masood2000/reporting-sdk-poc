@@ -1,6 +1,5 @@
 package com.masood
 
-
 import FileMetadata
 import SimpleDownloader
 import java.io.File
@@ -9,7 +8,7 @@ import java.util.Date
 fun main() {
 
 
-    val url = "http://localhost:8080/abc.txt"
+    val url = "http://localhost:8080/my-local-file.txt"
 
     val date = Date()
     val time = date.toLocaleString().replace(" ","-").replace(",","").replace(":","-")
@@ -25,8 +24,5 @@ fun main() {
 
 
     simpleDownloader.downloadFile(url, outputFilePath)
-
-
-
 
 }
