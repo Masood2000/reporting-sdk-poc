@@ -33,5 +33,10 @@ kotlin {
     jvmToolchain(17)
 }
 
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "com.masood.MainKt"
+    }
+}
 
 
