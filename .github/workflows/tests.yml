@@ -1,0 +1,53 @@
+name: Java CI with Local Server
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Prepare Mock File and Server
+        run: |
+          # Create a directory to serve files from
+          mkdir server_root
+          
+          # Create the file your test expects (file.exe) 
+          # We make it exactly 1024 bytes for predictable testing
+          head -c 1024 /dev/zero > server_root/file.exe
+          
+          # Start a background Python server on port 8080
+          # This allows your Java code to connect to http://localhost:8080/file.exe
+          cd server_root && python3 -m http.server 8080 &
+          
+          # Give the server 3 seconds to fully initialize
+          sleep 3
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Run Tests
+        run: ./gradlew test
+
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-test-results
+          path: build/reports/tests/test
