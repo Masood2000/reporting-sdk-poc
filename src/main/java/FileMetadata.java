@@ -1,20 +1,15 @@
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 /***
  * @Author: Masood
  * @Date: 2026-02-11
  * @Description: FileMetaData class for getting the metadata of a file
  *              which we want to download.
  */
-
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-
-/***
- * only for file metadata information
- */
 public class FileMetadata {
 
-    public  void getMetaData(String _url) throws Exception {
+    public long getMetaData(String _url) throws Exception {
 
         URL url = new URL(_url);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -28,7 +23,16 @@ public class FileMetadata {
         System.out.println("Accept-Ranges: " + acceptRanges);
         System.out.println("Content-Length: " + contentLength);
 
+        if (!"bytes".equals(acceptRanges)) {
+            return -1;
+        }
+
+        if (contentLength <= 0) {
+            return -1;
+        }
 
         connection.disconnect();
+
+        return contentLength;
     }
 }
