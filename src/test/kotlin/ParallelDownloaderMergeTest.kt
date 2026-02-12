@@ -71,7 +71,6 @@ class ParallelDownloaderMergeTest {
         val parallelFile = File(parallelPath)
         val simpleFile = File(simplePath)
 
-        // Both should download same file with same size
         assertEquals(parallelFile.length(), simpleFile.length(), "File sizes should match")
         println("Parallel and simple downloads produce same file size")
     }
@@ -84,7 +83,6 @@ class ParallelDownloaderMergeTest {
 
         downloader.downloadInParallel("http://localhost:8080/file.exe", outputPath, 4)
 
-        // Check that .part files are deleted
         val partFile0 = File(outputPath + ".part0")
         val partFile1 = File(outputPath + ".part1")
         val partFile2 = File(outputPath + ".part2")
@@ -145,12 +143,9 @@ class ParallelDownloaderMergeTest {
         val downloader = ParallelDownloaderMerge()
         val outputPath = tempDir.resolve("norange.exe").toString()
 
-        // If server doesn't support ranges, metadata returns -1
-        // This test verifies the check works
         try {
             downloader.downloadInParallel("http://localhost:8080/file.exe", outputPath, 4)
 
-            // If it succeeds, server supports ranges
             assertTrue(File(outputPath).exists())
             println("Server supports range requests")
         } catch (e: Exception) {
@@ -182,10 +177,8 @@ class ParallelDownloaderMergeTest {
         val downloader = ParallelDownloaderMerge()
         val outputPath = tempDir.resolve("executor-test.exe").toString()
 
-        // Download completes - executor should shutdown properly
         downloader.downloadInParallel("http://localhost:8080/file.exe", outputPath, 4)
 
-        // If we can download again, executor was properly shutdown
         val outputPath2 = tempDir.resolve("executor-test2.exe").toString()
         downloader.downloadInParallel("http://localhost:8080/file.exe", outputPath2, 4)
 
@@ -200,7 +193,6 @@ class ParallelDownloaderMergeTest {
         val downloader = ParallelDownloaderMerge()
         val outputPath = tempDir.resolve("range-test.exe").toString()
 
-        // If download succeeds, Range header was set correctly
         downloader.downloadInParallel("http://localhost:8080/file.exe", outputPath, 4)
 
         val file = File(outputPath)
