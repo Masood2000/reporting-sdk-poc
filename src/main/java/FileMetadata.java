@@ -24,7 +24,7 @@ public class FileMetadata {
         System.out.println("Content-Length: " + contentLength);
 
         if (!"bytes".equals(acceptRanges)) {
-            return -1;
+            System.out.println("Warning: Server does not support range requests.");
         }
 
         if (contentLength <= 0) {
