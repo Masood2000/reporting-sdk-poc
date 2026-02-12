@@ -21,7 +21,6 @@ This project is a test task for the project Proof of Concept for integrating a r
 # Simple Tests for File Downloader
 
 
-## What This Is
 
 Very simple Kotlin tests for  FileMetadata and SimpleDownloader classes.
 
