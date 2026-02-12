@@ -6,8 +6,28 @@ This project explores concurrency patterns in **Java (Threads /
 Executors)** and **Kotlin (Coroutines)**, documenting from
 a simple sequential downloader to parallel solution.
 
+
+
 ------------------------------------------------------------------------
 
+## 🚀 Usage
+
+By default, the application saves downloaded files to a **hardcoded output path** and uses the **seek downloader strategy**.
+
+You can customize:
+
+1. The **output directory**
+2. The **downloader type** (`simple`, `seek`, `merge`, `coroutines`)
+
+---
+
+### ▶ Using Gradle
+```
+./gradlew run --args="D:/path/to/output seek"
+
+```
+### Hardcoded Output Path (Alternative)
+val outputDirectoryPath = "D:/your/default/path/"
 
 ##  Development
 
