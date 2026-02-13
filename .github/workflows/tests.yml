@@ -1,14 +1,61 @@
-name: Build & Release Jar
+name: Java CI, Test & Release
 
 on:
   push:
-    tags:
-      - 'v*'   # Trigger only when a tag like v1.0 is pushed
+    branches: [ "main", "master" ]
+    tags: [ "v*" ]  # Release job triggers only on tags
+  pull_request:
+    branches: [ "main", "master" ]
 
 jobs:
-  build-and-release:
+  build-and-test:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Prepare Mock File and Server
+        run: |
+          mkdir server_root
+          head -c 1024 /dev/zero > server_root/my-local-file.txt
+          cd server_root && python3 -m http.server 8080 &
+          sleep 3
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Run Tests
+        run: ./gradlew test
+
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-test-results
+          path: build/reports/tests/test
+
+      - name: Build Fat JAR
+        run: ./gradlew clean shadowJar
+
+      - name: Upload Fat JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: parallel-downloader-jar
+          path: build/libs/*-all.jar
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build-and-test
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -25,12 +72,10 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # --- Build Fat JAR ---
       - name: Build Fat JAR
         run: ./gradlew clean shadowJar
 
-      # --- Create GitHub Release ---
-      - name: Create Release
+      - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
         with:
@@ -41,8 +86,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # --- Upload Fat JAR to Release ---
-      - name: Upload JAR to Release
+      - name: Upload Fat JAR to Release
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
