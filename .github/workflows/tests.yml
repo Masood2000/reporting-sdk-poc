@@ -7,7 +7,7 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
-  build-and-test:
+  build-test-and-jar:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,23 +25,15 @@ jobs:
 
       - name: Prepare Mock File and Server
         run: |
-          # Create a directory to serve files from
           mkdir server_root
-          
-          # Create the file your test expects (my-local-file.txt) 
-          # We make it exactly 1024 bytes for predictable testing
           head -c 1024 /dev/zero > server_root/my-local-file.txt
-          
-          # Start a background Python server on port 8080
-          # This allows your Java code to connect to http://localhost:8080/my-local-file.txt
           cd server_root && python3 -m http.server 8080 &
-          
-          # Give the server 3 seconds to fully initialize
           sleep 3
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      # --- Run Tests ---
       - name: Run Tests
         run: ./gradlew test
 
@@ -51,3 +43,13 @@ jobs:
         with:
           name: junit-test-results
           path: build/reports/tests/test
+
+      # --- Build Fat JAR (Shadow) ---
+      - name: Build Fat JAR
+        run: ./gradlew clean shadowJar
+
+      - name: Upload Fat JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: parallel-downloader-jar
+          path: build/libs/*-all.jar
